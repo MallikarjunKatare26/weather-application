@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Forecast</title>
+  <meta name="description"
+    content="Get accurate 5-day weather forecasts for any city or your current location. View temperature, humidity, wind speed, and direction with easy-to-read icons and detailed weather summaries. Mobile-responsive and user-friendly interface! Created By Mallikarjun Katare" />
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* General styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-image: url('./assets/noaa-p9BRX1mBfe4-unsplash.jpg');
+      /* Background image */
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      margin: 0;
+      color: white;
+      flex-direction: column;
+      width: 100%;
+      padding-top: 40px;
+      /* Ensure content doesn't go under the fixed header */
+      padding-bottom: 40px;
+      /* Ensure content doesn't go under the fixed footer */
+    }
+
+    .container {
+      background-color: rgba(0, 0, 0, 0.7);
+      /* Transparent background for readability */
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+      margin-top: 50px;
+      margin-bottom: 50px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .search {
+      margin-bottom: 20px;
+    }
+
+    #cityInput {
+      padding: 10px;
+      font-size: 16px;
+      width: 70%;
+      margin-right: 10px;
+      border: 2px solid #00aaff;
+      border-radius: 5px;
+    }
+
+    #getWeatherBtn {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background-color: #00aaff;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: auto;
+    }
+
+    #getWeatherBtn:hover {
+      background-color: #0077aa;
+    }
+
+    #weatherInfo {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .weather-card {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      margin: 10px;
+      border-radius: 10px;
+      width: 160px;
+      text-align: center;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+    }
+
+    .weather-card h3 {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .weather-card p {
+      margin: 5px 0;
+    }
+
+    .icon {
+      font-size: 24px;
+      margin-right: 8px;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: auto;
+      /* Fixed height for header */
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      text-align: left;
+      color: white;
+      font-size: 20px;
+      line-height: 30px;
+      /* Centers the text vertically */
+      z-index: 1000;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      text-align: center;
+      padding: 10px;
+      color: white;
+      z-index: 1000;
+    }
+
+    /* Media Queries for mobile responsiveness */
+    @media (max-width: 600px) {
+      .search {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #cityInput {
+        width: 80%;
+        margin-bottom: 10px;
+      }
+
+      #getWeatherBtn {
+        width: 80%;
+      }
+
+      .weather-card {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+
+      h1 {
+        font-size: 2em;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header with text logo -->
+  <header>
+    <div class="logo"> <i class="fa-solid fa-cloud-sun"></i> Weather Forecast</div>
+  </header>
+
+  <div class="container">
+    <h1>5-Day Weather Forecast</h1>
+    <div class="search">
+      <input type="text" id="cityInput" placeholder="Enter city">
+      <button id="getWeatherBtn">Get Weather</button>
+    </div>
+    <div id="weatherInfo"></div>
+  </div>
+
+  <!-- Footer with dynamic year -->
+  <footer>
+    <p>&copy; <span id="currentYear"></span> Created by Mallikarjun Katare</p>
+  </footer>
+
+  <script>
+    const key = "c1f36c95697c0562f029d71ce8cb4e56";
+
+    // Function to get weather forecast
+    const getForecast = async (city) => {
+      const base = "https://api.openweathermap.org/data/2.5/forecast";
+      const query = `?q=${city}&units=metric&appid=${key}`;
+
+      const response = await fetch(base + query);
+      if (!response.ok) {
+        throw new Error("Status Code : " + response.status);
+      }
+
+      const data = await response.json();
+      return data;
+    };
+
+    // Function to display weather data
+    const displayWeather = (data) => {
+      const weatherInfo = document.getElementById("weatherInfo");
+      weatherInfo.innerHTML = ""; // Clear previous data
+
+      const days = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+
+      days.slice(0, 5).forEach(day => {  // Display today and next 4 days
+        const card = document.createElement("div");
+        card.classList.add("weather-card");
+
+        const date = new Date(day.dt * 1000);
+        const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+
+        // Icon based on weather status
+        let weatherIcon = "";
+        const weatherStatus = day.weather[0].main.toLowerCase();
+
+        if (weatherStatus === "clear") {
+          weatherIcon = "<i class='fas fa-sun'></i>";
+        } else if (weatherStatus === "rain") {
+          weatherIcon = "<i class='fas fa-cloud-showers-heavy'></i>";
+        } else if (weatherStatus === "clouds") {
+          weatherIcon = "<i class='fas fa-cloud'></i>";
+        } else {
+          weatherIcon = "<i class='fas fa-smog'></i>";
+        }
+
+        card.innerHTML = `
+                    <h3>${dayName}</h3>
+                    <p>${weatherIcon} ${day.weather[0].description}</p>
+                    <p><i class="fas fa-thermometer-half icon"></i> Temp: ${day.main.temp}°C</p>
+                    <p><i class="fas fa-tint icon"></i> Humidity: ${day.main.humidity}%</p>
+                    <p><i class="fas fa-wind icon"></i> Wind: ${day.wind.speed} m/s</p>
+                    <p><i class="fas fa-arrow-alt-circle-right icon"></i> Direction: ${day.wind.deg}°</p>
+                `;
+        weatherInfo.appendChild(card);
+      });
+    };
+
+    // Event listener for the button
+    document.getElementById("getWeatherBtn").addEventListener("click", async () => {
+      const city = document.getElementById("cityInput").value;
+      if (!city) return alert("Please enter a city name!");
+
+      try {
+        const data = await getForecast(city);
+        displayWeather(data);
+      } catch (error) {
+        alert("Error fetching data: " + error.message);
+      }
+    });
+
+    // Dynamically update the year in the footer
+    document.getElementById("currentYear").textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
