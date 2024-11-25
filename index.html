@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Forecast</title>
+  <meta name="description"
+    content="Get accurate 5-day weather forecasts for any city or your current location. View temperature, humidity, wind speed, and direction with easy-to-read icons and detailed weather summaries. Mobile-responsive and user-friendly interface! Created By Mallikarjun Katare" />
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.ico">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="./main.css">
+</head>
+
+<body>
+  <header>
+    <div class="logo"> <i class="fa-solid fa-cloud-sun"></i> Weather Forecast</div>
+  </header>
+  <div class="container">
+    <h1>5-Day Weather Forecast</h1>
+    <div class="search">
+      <input type="text" id="cityInput" placeholder="Enter city">
+      <button id="getWeatherBtn">Get Weather</button>
+    </div>
+    <div id="weatherInfo"></div>
+  </div>
+  <footer>
+    <p>&copy; <span id="currentYear"></span> Created by Mallikarjun Katare</p>
+  </footer>
+  <script src="./main.js"></script>
+</body>
+
+</html>
